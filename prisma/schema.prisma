@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  username  String  @unique
+  refreshToken String?   @db.Text
+  password    String
+  role        Role      @default(STAFF)
+  sessions    Session[]
+  bills       Bill[]    @relation("StaffBills")
+  createdAt   DateTime  @default(now())
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model Table {
+  id                Int           @id @default(autoincrement())
+  name              String
+  type              TableType
+  pricePerHour      Float
+  status            TableStatus   @default(AVAILABLE)
+  currentSessionId  Int?          @unique
+  currentSession    Session?      @relation("CurrentTableSession", fields: [currentSessionId], references: [id])
+  sessions          Session[]     @relation("TableSessions")
+  createdAt         DateTime      @default(now())
+}
+
+model Session {
+  id            Int       @id @default(autoincrement())
+  tableId       Int
+  table         Table     @relation("TableSessions", fields: [tableId], references: [id])
+  currentTable  Table?    @relation("CurrentTableSession")
+  staffId       Int
+  staff         User      @relation(fields: [staffId], references: [id])
+  startTime     DateTime  @default(now())
+  endTime       DateTime?
+  totalAmount   Float     @default(0)
+  bill          Bill?
+  createdAt     DateTime  @default(now())
+}
+
+enum TableType {
+  POOL
+  CAROM
+}
+
+enum TableStatus {
+  AVAILABLE
+  PLAYING
+  RESERVED
+}
+
+model Bill {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int       @unique
+  session     Session   @relation(fields: [sessionId], references: [id])
+  items       BillItem[]
+  totalAmount Float
+  createdAt   DateTime  @default(now())
+  createdById Int
+  createdBy   User      @relation("StaffBills", fields: [createdById], references: [id])
+}
+
+model BillItem {
+  id        Int      @id @default(autoincrement())
+  billId    Int
+  bill      Bill     @relation(fields: [billId], references: [id])
+  name      String
+  quantity  Int
+  price     Float
+}

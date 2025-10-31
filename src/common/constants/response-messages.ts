@@ -6,4 +6,6 @@ export const responseMessage = {
   UPDATE_SUCCESS: 'Updated successfully',
   LOGIN_SUCCESS: 'Login successfully',
   LOGOUT_SUCCESS: 'Logout successfully',
+  REFRESH_SUCCESS: 'Refresh token successfully',
+  SIGN_UP_SUCCESS: 'Sign up successfully',
 };

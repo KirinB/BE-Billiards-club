@@ -1,13 +1,25 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { TokenCheck } from './auth/token/check-token.gaurd';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
+
+  //Guard
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new TokenCheck(reflector));
+
+  //CORS
+  app.enableCors({
+    origin: ['http://localhost:5173', 'https://google.com'],
+  });
 
   //Config
   const configService = app.get(ConfigService);

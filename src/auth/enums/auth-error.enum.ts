@@ -5,6 +5,7 @@ export enum AuthError {
   TOKEN_MISSING = 'Access token is missing',
   TOKEN_INVALID = 'Access token is invalid',
   TOKEN_EXPIRED = 'Access token has expired',
+  TOKEN_INVALID_OR_EXPIRED = 'Token is invalid or expired',
   REFRESH_TOKEN_MISSING = 'Refresh token missing',
   REFRESH_TOKEN_INVALID = 'Refresh token invalid',
 }

@@ -1,14 +1,14 @@
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { AuthError } from '../enums/auth-error.enum';
 import { ValidationMessages } from 'src/common/constants/validation-messages';
+import { AuthError } from '../enums/auth-error.enum';
 
-export class SignInDto {
-  @IsNotEmpty({ message: AuthError.EMAIL_OR_USERNAME_EMPTY })
+export class ResetPasswordDto {
+  @IsNotEmpty()
   @IsString()
-  usernameOrEmail: string;
+  token: string;
 
   @IsNotEmpty({ message: AuthError.PASSWORD_EMPTY })
-  @IsString()
+  @IsString({ message: ValidationMessages.PASSWORD_REQUIRED })
   @MinLength(6, { message: ValidationMessages.PASSWORD_MIN })
   password: string;
 }

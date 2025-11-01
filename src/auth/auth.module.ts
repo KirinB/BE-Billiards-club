@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { parseJwtExp } from 'src/common/helpers/ulti.helper';
+import { MailerModule } from 'src/mail/mailer.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { parseJwtExp } from 'src/common/helpers/ulti.helper';
         },
       }),
     }),
+    MailerModule,
   ],
   controllers: [AuthController],
   providers: [AuthService],

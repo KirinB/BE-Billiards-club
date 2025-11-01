@@ -9,15 +9,17 @@ import {
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
-import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { IsPublic } from './decorators/public.decorator';
-import { IAuthUser } from 'src/common/interfaces/auth-user.interface';
-import { AuthError } from './enums/auth-error.enum';
-import { responseMessage } from 'src/common/constants/response-messages';
-import { SignUpDto } from './dto/sign-up.dto';
 import { REFRESH_TOKEN_MAXAGE } from 'src/common/constants/app.constant';
+import { responseMessage } from 'src/common/constants/response-messages';
+import { IAuthUser } from 'src/common/interfaces/auth-user.interface';
+import { AuthService } from './auth.service';
+import { IsPublic } from './decorators/public.decorator';
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { AuthError } from './enums/auth-error.enum';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -43,7 +45,7 @@ export class AuthController {
     });
     return {
       message: 'Login successful',
-      data: accessToken,
+      data: { accessToken },
     };
   }
 
@@ -88,7 +90,7 @@ export class AuthController {
 
     return {
       message: responseMessage.REFRESH_SUCCESS,
-      data: accessToken,
+      data: { accessToken },
     };
   }
 
@@ -100,6 +102,23 @@ export class AuthController {
     return {
       message: responseMessage.SIGN_UP_SUCCESS,
       data: user,
+    };
+  }
+
+  // [POST] /auth/forgot-password
+  @IsPublic()
+  @Post('forgot-password')
+  async forgotPassword(@Body() payload: ForgotPasswordDto) {
+    await this.authService.forgotPassword(payload);
+  }
+
+  //  [POST] /auth/reset-password
+  @IsPublic()
+  @Post('reset-password')
+  async resetPassword(@Body() payload: ResetPasswordDto) {
+    await this.authService.resetPassword(payload);
+    return {
+      message: 'Reset password successfully',
     };
   }
 }

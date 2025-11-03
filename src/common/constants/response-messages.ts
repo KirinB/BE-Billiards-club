@@ -1,5 +1,5 @@
 export const responseMessage = {
-  CREATE_SUSSCESS: 'Created successfully',
+  CREATE_SUCCESS: 'Created successfully',
   GET_SUCCESS: 'Fetched successfully',
   NOT_FOUND: 'Not Found',
   DELETE_SUCCESS: ' Deleted successfully',

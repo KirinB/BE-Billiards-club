@@ -23,6 +23,7 @@ model User {
   role        Role      @default(STAFF)
   sessions    Session[]
   bills       Bill[]    @relation("StaffBills")
+  orders       Order[]    @relation("StaffOrders")
   createdAt   DateTime  @default(now())
 }
 
@@ -70,6 +71,7 @@ model Session {
   staff         User      @relation(fields: [staffId], references: [id])
   startTime     DateTime  @default(now())
   endTime       DateTime?
+  orders      Order[]
   totalAmount   Float     @default(0)
   bill          Bill?
   createdAt     DateTime  @default(now())
@@ -98,10 +100,70 @@ model Bill {
 }
 
 model BillItem {
-  id        Int      @id @default(autoincrement())
-  billId    Int
-  bill      Bill     @relation(fields: [billId], references: [id])
-  name      String
-  quantity  Int
-  price     Float
+  id          Int       @id @default(autoincrement())
+  billId      Int
+  bill        Bill      @relation(fields: [billId], references: [id])
+  menuItemId  Int
+  menuItem    MenuItem  @relation(fields: [menuItemId], references: [id])
+  quantity    Int
+  price       Float   
+}
+
+model Menu {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  menuItems MenuItemOnMenu[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model MenuItem {
+  id         Int        @id @default(autoincrement())
+  name       String
+  price      Float
+  categoryId Int?
+  category   Category?  @relation(fields: [categoryId], references: [id])
+  menus      MenuItemOnMenu[]
+  billItems  BillItem[]
+  available  Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  orderItems OrderItem[]
+}
+
+model MenuItemOnMenu {
+  menuId     Int
+  menu       Menu       @relation(fields: [menuId], references: [id])
+  menuItemId Int
+  menuItem   MenuItem   @relation(fields: [menuItemId], references: [id])
+
+  @@id([menuId, menuItemId])
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  menuItems MenuItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  sessionId   Int
+  session     Session     @relation(fields: [sessionId], references: [id])
+  orderItems  OrderItem[]
+  createdById Int
+  createdBy   User      @relation("StaffOrders", fields: [createdById], references: [id])
+  createdAt   DateTime    @default(now())
+}
+
+model OrderItem {
+  id          Int         @id @default(autoincrement())
+  orderId     Int
+  order       Order       @relation(fields: [orderId], references: [id])
+  menuItemId  Int
+  menuItem    MenuItem    @relation(fields: [menuItemId], references: [id])
+  quantity    Int         @default(1)
 }

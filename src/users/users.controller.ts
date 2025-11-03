@@ -28,12 +28,14 @@ export class UsersController {
     @Query('pageSize') pageSize?: string,
     @Query('search') search?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('sortBy') sortBy?: 'name' | 'email' | 'createdAt',
   ) {
     return this.usersService.findAll({
       page: page ? parseInt(page) : undefined,
       pageSize: pageSize ? parseInt(pageSize) : undefined,
       search,
       sortOrder,
+      sortBy,
     });
   }
 

@@ -47,7 +47,7 @@ export class UsersService {
     });
 
     return {
-      message: responseMessage.CREATE_SUSSCESS,
+      message: responseMessage.CREATE_SUCCESS,
       data: {
         ...newUser,
         password: undefined,

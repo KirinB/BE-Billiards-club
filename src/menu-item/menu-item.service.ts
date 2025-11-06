@@ -67,7 +67,7 @@ export class MenuItemService {
     } = query;
     const skip = (page - 1) * pageSize;
 
-    const where: any = {};
+    const where: any = { deleted: false };
     if (name) where.name = { contains: name };
     if (categoryId) where.categoryId = categoryId;
     if (available !== undefined) where.available = available;
@@ -94,7 +94,7 @@ export class MenuItemService {
 
   async findOne(id: number) {
     const item = await this.prisma.menuItem.findUnique({
-      where: { id },
+      where: { id, deleted: false },
       include: { menus: { include: { menu: true } }, category: true },
     });
     if (!item) throw new NotFoundException(MenuItemError.MENU_ITEM_NOT_FOUND);
@@ -142,7 +142,15 @@ export class MenuItemService {
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-    await this.prisma.menuItem.delete({ where: { id } });
+    try {
+      await this.findOne(id);
+      await this.prisma.menuItem.update({
+        where: { id },
+        data: { deleted: true },
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }

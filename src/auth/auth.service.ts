@@ -138,16 +138,21 @@ export class AuthService {
 
   //  [POST] /auth/signout
   async signOut(user: IAuthUser) {
-    await this.prisma.token.updateMany({
-      where: {
-        userId: user.id,
-        type: 'REFRESH',
-        revoked: false,
-      },
-      data: {
-        revoked: true,
-      },
-    });
+    try {
+      await this.prisma.token.updateMany({
+        where: {
+          userId: 1,
+          type: 'REFRESH',
+          revoked: false,
+        },
+        data: {
+          revoked: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   //  [GET] /auth/refresh

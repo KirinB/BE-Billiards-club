@@ -62,16 +62,33 @@ export class MenuService {
     };
   }
 
+  //[GET] '/menu/all'
+  async findAllWithoutPagination() {
+    try {
+      return await this.prisma.menu.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
   // [GET] '/menu/:id'
   async findOne(id: number) {
-    const menu = await this.prisma.menu.findUnique({
-      where: { id },
-      include: { menuItems: true },
-    });
+    try {
+      const menu = await this.prisma.menu.findUnique({
+        where: { id },
+        include: { menuItems: true },
+      });
 
-    if (!menu) throw new NotFoundException(MenuError.MENU_NOT_FOUND);
+      if (!menu) throw new NotFoundException(MenuError.MENU_NOT_FOUND);
 
-    return menu;
+      return menu;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   // [PATCH] '/menu/:id'
@@ -103,8 +120,13 @@ export class MenuService {
 
   // [DELETE] '/menu/:id'
   async remove(id: number) {
-    await this.findOne(id);
+    try {
+      await this.findOne(id);
 
-    await this.prisma.menu.delete({ where: { id } });
+      await this.prisma.menu.delete({ where: { id } });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }

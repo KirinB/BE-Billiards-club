@@ -128,7 +128,7 @@ model MenuItem {
   available  Boolean    @default(true)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-
+deleted   Boolean   @default(false)
   orderItems OrderItem[]
 }
 

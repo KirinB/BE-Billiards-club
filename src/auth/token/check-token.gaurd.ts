@@ -35,16 +35,16 @@ export class TokenCheck extends AuthGuard('check-token') {
     if (err || !user) {
       //401 : Token hết hạn
       if (info instanceof TokenExpiredError)
-        throw new ForbiddenException(AuthError.TOKEN_EXPIRED);
+        throw new UnauthorizedException(AuthError.TOKEN_EXPIRED);
       //403: Sai token
       if (info instanceof JsonWebTokenError)
         throw new UnauthorizedException(AuthError.TOKEN_INVALID);
 
       if (info instanceof Error) {
-        throw new BadRequestException(AuthError.TOKEN_MISSING);
+        throw new UnauthorizedException(AuthError.TOKEN_MISSING);
       }
 
-      throw err || new BadGatewayException();
+      throw err || new UnauthorizedException();
     }
     return user;
   }

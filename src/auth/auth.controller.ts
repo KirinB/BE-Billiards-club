@@ -49,6 +49,7 @@ export class AuthController {
     };
   }
 
+  @IsPublic()
   //  [POST] /auth/signout
   @Post('signout')
   async signOut(

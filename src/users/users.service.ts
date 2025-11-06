@@ -49,8 +49,10 @@ export class UsersService {
     return {
       message: responseMessage.CREATE_SUCCESS,
       data: {
-        ...newUser,
-        password: undefined,
+        user: {
+          ...newUser,
+          password: undefined,
+        },
       },
     };
   }
@@ -137,6 +139,7 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
     // Kiểm tra user tồn tại chưa
     const existingUser = await this.prisma.user.findUnique({ where: { id } });
     if (!existingUser)
@@ -152,7 +155,7 @@ export class UsersService {
       const duplicateEmail = await this.prisma.user.findUnique({
         where: { email: updateUserDto.email },
       });
-      if (duplicateEmail)
+      if (duplicateEmail && duplicateEmail.id !== id)
         throw new ConflictException(ValidationMessages.EMAIL_TAKEN);
     }
 
@@ -164,7 +167,7 @@ export class UsersService {
       const duplicateUsername = await this.prisma.user.findUnique({
         where: { username: updateUserDto.username },
       });
-      if (duplicateUsername)
+      if (duplicateUsername && duplicateUsername.id !== id)
         throw new ConflictException(ValidationMessages.USERNAME_TAKEN);
     }
 
@@ -183,7 +186,6 @@ export class UsersService {
     });
 
     return {
-      message: responseMessage.UPDATE_SUCCESS,
       data: updatedUser,
     };
   }

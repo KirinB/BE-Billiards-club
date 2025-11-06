@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { responseMessage } from 'src/common/constants/response-messages';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -45,8 +45,15 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const { data: user } = await this.usersService.update(+id, updateUserDto);
+
+    return {
+      message: responseMessage.UPDATE_SUCCESS,
+      data: {
+        user,
+      },
+    };
   }
 
   @Delete(':id')

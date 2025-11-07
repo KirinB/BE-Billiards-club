@@ -8,6 +8,7 @@ import { SessionsService } from 'src/sessions/sessions.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
 import { BillError } from './enums/bill-error.enum';
+import { FindBillsQueryDto } from './dto/find-all-bill.dto';
 
 @Injectable()
 export class BillsService {
@@ -62,8 +63,8 @@ export class BillsService {
         return accOrder + orderTotal;
       }, 0);
 
-      if (session.orders.length === 0)
-        throw new BadRequestException(BillError.NO_ORDERS_FOUND);
+      // if (session.orders.length === 0)
+      //   throw new BadRequestException(BillError.NO_ORDERS_FOUND);
 
       const totalAmount = sessionAmount + totalOrder;
 
@@ -104,8 +105,46 @@ export class BillsService {
     return bill;
   }
 
-  findAll() {
-    return `This action returns all bills`;
+  // [GET] /bills
+  async findAll(query: FindBillsQueryDto) {
+    const { sessionId, staffId, page = 1, pageSize = 10 } = query;
+    const skip = (page - 1) * pageSize;
+
+    // Build filter
+    const where: any = {};
+    if (sessionId) where.sessionId = sessionId;
+    if (staffId) where.createdById = staffId;
+
+    // Count total records
+    const total = await this.prisma.bill.count({ where });
+
+    // Fetch paginated bills with relations
+    const bills = await this.prisma.bill.findMany({
+      where,
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            username: true,
+            role: true,
+            createdAt: true,
+          },
+        }, // lấy thông tin nhân viên tạo bill
+      },
+    });
+
+    return {
+      bills,
+      total,
+      page,
+      pageSize,
+      totalPage: Math.ceil(total / pageSize),
+    };
   }
 
   findOne(id: number) {

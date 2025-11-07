@@ -77,6 +77,42 @@ export class TablesService {
     }
   }
 
+  //  [GET] '/tables/all
+
+  async findAllWithoutPagination() {
+    try {
+      const tables = await this.prisma.table.findMany({
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          currentSession: {
+            select: {
+              id: true,
+              tableId: true,
+              startTime: true,
+              endTime: true,
+              createdAt: true,
+              _count: {
+                select: {
+                  orders: true,
+                },
+              },
+            },
+          },
+          status: true,
+          pricePerHour: true,
+          type: true,
+        },
+      });
+
+      return tables;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
   //  [GET] '/tables/:id'
 
   async findOne(id: number) {

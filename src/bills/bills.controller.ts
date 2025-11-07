@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Query,
 } from '@nestjs/common';
 import { BillsService } from './bills.service';
 import { CreateBillDto } from './dto/create-bill.dto';
@@ -14,6 +15,7 @@ import { UpdateBillDto } from './dto/update-bill.dto';
 import { Request } from 'express';
 import { IAuthUser } from 'src/common/interfaces/auth-user.interface';
 import { responseMessage } from 'src/common/constants/response-messages';
+import { FindBillsQueryDto } from './dto/find-all-bill.dto';
 
 @Controller('bills')
 export class BillsController {
@@ -34,8 +36,12 @@ export class BillsController {
   }
 
   @Get()
-  findAll() {
-    return this.billsService.findAll();
+  async findAll(@Query() query: FindBillsQueryDto) {
+    const result = await this.billsService.findAll(query);
+    return {
+      message: responseMessage.GET_SUCCESS,
+      data: result,
+    };
   }
 
   @Get(':id')

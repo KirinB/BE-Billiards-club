@@ -42,6 +42,19 @@ export class TablesController {
     };
   }
 
+  // [GET] '/tables/all
+  @Get('all')
+  async findAllWithoutPagination() {
+    const tables = await this.tablesService.findAllWithoutPagination();
+    return {
+      message: responseMessage.GET_SUCCESS,
+      data: {
+        tables,
+      },
+    };
+  }
+
+  //  [GET] '/tables/:id
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const result = await this.tablesService.findOne(+id);

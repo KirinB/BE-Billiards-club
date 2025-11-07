@@ -13,6 +13,7 @@ import { MenuModule } from './menu/menu.module';
 import { MenuItemModule } from './menu-item/menu-item.module';
 import { OrdersModule } from './orders/orders.module';
 import { BillsModule } from './bills/bills.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { BillsModule } from './bills/bills.module';
     MenuItemModule,
     OrdersModule,
     BillsModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, CheckTokenStrategy],

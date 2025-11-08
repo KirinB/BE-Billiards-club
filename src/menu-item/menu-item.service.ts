@@ -153,4 +153,18 @@ export class MenuItemService {
       throw error;
     }
   }
+
+  async findAllWithoutPagination() {
+    return await this.prisma.menuItem.findMany({
+      where: {
+        deleted: false,
+        available: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+      },
+    });
+  }
 }

@@ -80,6 +80,7 @@ export class BillsService {
           sessionId: session.id,
           createdById: staffId,
           totalAmount,
+
           items: {
             create: session.orders.flatMap((order) =>
               order.orderItems.map((item) => ({
@@ -90,16 +91,28 @@ export class BillsService {
             ),
           },
         },
-        include: { items: true },
+        include: {
+          items: {
+            include: {
+              menuItem: true,
+            },
+          },
+        },
       });
 
       // f. Update trạng thái bàn
-      await prisma.table.update({
+      const tableExist = await prisma.table.update({
         where: { id: table.id },
         data: { status: 'AVAILABLE', currentSessionId: null },
       });
 
-      return { ...newBill, hoursPlayed, sessionAmount, totalOrder };
+      return {
+        ...newBill,
+        hoursPlayed,
+        sessionAmount,
+        totalOrder,
+        pricePerHour: tableExist.pricePerHour,
+      };
     });
 
     return bill;

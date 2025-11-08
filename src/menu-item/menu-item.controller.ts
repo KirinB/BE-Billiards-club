@@ -38,6 +38,18 @@ export class MenuItemController {
     };
   }
 
+  //  [GET] '/menu-item/all'
+  @Get('all')
+  async findAllWithoutPagination() {
+    const items = await this.menuItemService.findAllWithoutPagination();
+    return {
+      message: responseMessage.GET_SUCCESS,
+      data: {
+        items,
+      },
+    };
+  }
+
   // [GET] '/menu-item/:id'
   @Get(':id')
   async findOne(@Param('id') id: string) {

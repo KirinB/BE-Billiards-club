@@ -14,6 +14,7 @@ import { MenuItemModule } from './menu-item/menu-item.module';
 import { OrdersModule } from './orders/orders.module';
 import { BillsModule } from './bills/bills.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { StoreInfoModule } from './store-info/store-info.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     OrdersModule,
     BillsModule,
     DashboardModule,
+    StoreInfoModule,
   ],
   controllers: [AppController],
   providers: [AppService, CheckTokenStrategy],

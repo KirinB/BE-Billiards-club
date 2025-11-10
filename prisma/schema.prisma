@@ -167,3 +167,14 @@ model OrderItem {
   menuItem    MenuItem    @relation(fields: [menuItemId], references: [id])
   quantity    Int         @default(1)
 }
+
+model StoreInfo {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  phone     String
+  logo      String?
+  vat       Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

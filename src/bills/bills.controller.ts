@@ -45,8 +45,14 @@ export class BillsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.billsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const bill = await this.billsService.findOne(+id);
+    return {
+      message: responseMessage.GET_SUCCESS,
+      data: {
+        bill,
+      },
+    };
   }
 
   @Patch(':id')

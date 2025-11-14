@@ -97,6 +97,8 @@ model Bill {
   createdAt   DateTime  @default(now())
   createdById Int
   createdBy   User      @relation("StaffBills", fields: [createdById], references: [id])
+  memberId  Int?
+  member  Member? @relation(fields: [memberId], references: [id])
 }
 
 model BillItem {
@@ -107,6 +109,7 @@ model BillItem {
   menuItem    MenuItem  @relation(fields: [menuItemId], references: [id])
   quantity    Int
   price       Float   
+
 }
 
 model Menu {
@@ -177,4 +180,42 @@ model StoreInfo {
   vat       Float?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id Int  @id @default(autoincrement())
+  name String
+  phone String @unique
+  email String?
+  totalPoints Int @default(0)
+  pointHistory  PointHistory[]
+  memberLevel MemberLevel @default(BRONZE)
+  deleted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt DateTime  @updatedAt
+  bills  Bill[]
+}
+
+enum MemberLevel {
+  BRONZE
+  SILVER
+  GOLD
+  DIAMOND
+}
+
+model PointHistory {
+  id  Int @id @default(autoincrement())
+  memberId  Int
+  member  Member  @relation(fields: [memberId],references: [id])
+  type  PointType
+  points Int
+  reason  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum PointType {
+  EARN
+  REDEEM
+  ADJUST
 }

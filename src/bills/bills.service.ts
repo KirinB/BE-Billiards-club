@@ -160,8 +160,67 @@ export class BillsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bill`;
+  async findOne(billId: number) {
+    // 1. Lấy bill + session + orders
+    const bill = await this.prisma.bill.findUnique({
+      where: { id: billId },
+      include: {
+        items: {
+          include: { menuItem: true },
+        },
+        session: {
+          include: {
+            table: true,
+            orders: {
+              include: {
+                orderItems: { include: { menuItem: true } },
+              },
+            },
+          },
+        },
+        createdBy: true,
+      },
+    });
+
+    if (!bill) throw new NotFoundException('Bill not found');
+
+    const { session } = bill;
+
+    if (!session)
+      throw new NotFoundException('Session not found for this bill');
+
+    // 2. Tính lại giờ chơi
+    const start = session.startTime;
+    const end = session.endTime ?? new Date();
+
+    if (!start) {
+      throw new BadRequestException('Session missing startTime');
+    }
+
+    const hoursPlayed = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+
+    const sessionAmount = Math.ceil(hoursPlayed * session.table.pricePerHour);
+
+    // 3. Tính lại tiền order
+    const totalOrder = session.orders.reduce((accOrder, order) => {
+      const orderTotal = order.orderItems.reduce(
+        (accItem, item) => accItem + item.quantity * item.menuItem.price,
+        0,
+      );
+      return accOrder + orderTotal;
+    }, 0);
+
+    // 4. Tổng tiền
+    const totalAmount = sessionAmount + totalOrder;
+
+    return {
+      ...bill,
+      hoursPlayed,
+      sessionAmount,
+      totalOrder,
+      totalAmount,
+      pricePerHour: session.table.pricePerHour,
+    };
   }
 
   update(id: number, updateBillDto: UpdateBillDto) {

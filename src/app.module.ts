@@ -16,6 +16,7 @@ import { BillsModule } from './bills/bills.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { StoreInfoModule } from './store-info/store-info.module';
 import { MembersModule } from './members/members.module';
+import { PointHistoryModule } from './point-history/point-history.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { MembersModule } from './members/members.module';
     DashboardModule,
     StoreInfoModule,
     MembersModule,
+    PointHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, CheckTokenStrategy],

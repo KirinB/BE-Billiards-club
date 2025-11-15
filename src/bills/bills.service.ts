@@ -9,6 +9,7 @@ import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
 import { BillError } from './enums/bill-error.enum';
 import { FindBillsQueryDto } from './dto/find-all-bill.dto';
+import { memberLevelUp } from 'src/common/helpers/member-auto-level-up.helper';
 
 @Injectable()
 export class BillsService {
@@ -18,7 +19,7 @@ export class BillsService {
   ) {}
 
   async create(payload: CreateBillDto, staffId: number) {
-    const { tableId } = payload;
+    const { tableId, phone } = payload;
 
     // 1. Lấy bàn và session hiện tại
     const table = await this.prisma.table.findUnique({
@@ -33,7 +34,30 @@ export class BillsService {
 
     const sessionId = table.currentSessionId;
 
-    // 2. Transaction: kết thúc session + tạo bill + update table
+    // 2. Tìm member (chỉ khi phone có giá trị)
+    let memberId: number | null = null;
+
+    if (phone && phone.trim() !== '') {
+      const existing = await this.prisma.member.findUnique({
+        where: { phone },
+      });
+
+      if (existing) {
+        memberId = existing.id;
+      } else {
+        // Tạo member mới (chỉ có phone)
+        const newMember = await this.prisma.member.create({
+          data: {
+            phone,
+            name: null,
+          },
+        });
+
+        memberId = newMember.id;
+      }
+    }
+
+    // 3. Transaction: kết thúc session + tạo bill + update table
     const bill = await this.prisma.$transaction(async (prisma) => {
       // a. Lấy session
       const session = await prisma.session.findUnique({
@@ -105,6 +129,45 @@ export class BillsService {
         where: { id: table.id },
         data: { status: 'AVAILABLE', currentSessionId: null },
       });
+
+      // g. Nếu có member → cộng điểm
+      //lấy config từ store 1 điểm = bao nhiêu k (mặc định 10k /1điểm)
+      const store = await this.prisma.storeInfo.findFirst();
+
+      const pointRate = store?.pointRate ?? 10000;
+
+      if (memberId) {
+        const points = Math.floor(totalAmount / pointRate);
+
+        const member = await prisma.member.update({
+          where: { id: memberId },
+          data: { totalPoints: { increment: points } },
+        });
+
+        // Lưu lịch sử điểm
+        await prisma.pointHistory.create({
+          data: {
+            memberId,
+            points,
+            type: 'EARN',
+            reason: `Tích điểm từ bill #${newBill.id}`,
+            staffId,
+          },
+        });
+
+        //Xem đủ điểm up level chưa
+        const newLevel = memberLevelUp(member.totalPoints, store?.levelConfig);
+        if (newLevel !== member.memberLevel) {
+          await prisma.member.update({
+            where: {
+              id: member.id,
+            },
+            data: {
+              memberLevel: newLevel,
+            },
+          });
+        }
+      }
 
       return {
         ...newBill,

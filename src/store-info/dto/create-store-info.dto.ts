@@ -1,4 +1,4 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateStoreInfoDto {
   @IsString()
@@ -11,4 +11,13 @@ export class CreateStoreInfoDto {
   logo: string;
   @IsInt()
   vat: number;
+  @IsInt()
+  pointRate: number;
+  @IsOptional()
+  levelConfig?: {
+    BRONZE: number;
+    SILVER: number;
+    GOLD: number;
+    DIAMOND: number;
+  };
 }

@@ -1,15 +1,18 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
-import { MembersService } from './members.service';
+import { responseMessage } from 'src/common/constants/response-messages';
 import { CreateMemberDto } from './dto/create-member.dto';
+import { QueryFindAllMember } from './dto/find-all-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
+import { MembersService } from './members.service';
 
 @Controller('members')
 export class MembersController {
@@ -21,22 +24,47 @@ export class MembersController {
   }
 
   @Get()
-  async findAll() {
-    // return this.membersService.findAll();
+  async findAll(@Query() query: QueryFindAllMember) {
+    const data = await this.membersService.findAll(query);
+
+    return {
+      message: responseMessage.GET_SUCCESS,
+      data,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.membersService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const member = await this.membersService.findOne(+id);
+
+    return {
+      message: responseMessage.GET_SUCCESS,
+      data: {
+        member,
+      },
+    };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMemberDto: UpdateMemberDto) {
-    return this.membersService.update(+id, updateMemberDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateMemberDto: UpdateMemberDto,
+  ) {
+    const member = await this.membersService.update(+id, updateMemberDto);
+
+    return {
+      message: responseMessage.UPDATE_SUCCESS,
+      data: {
+        member,
+      },
+    };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.membersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.membersService.remove(+id);
+    return {
+      message: responseMessage.DELETE_SUCCESS,
+    };
   }
 }

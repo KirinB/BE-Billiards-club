@@ -24,6 +24,7 @@ model User {
   sessions    Session[]
   bills       Bill[]    @relation("StaffBills")
   orders       Order[]    @relation("StaffOrders")
+  pointHistories PointHistory[]
   createdAt   DateTime  @default(now())
 }
 
@@ -178,13 +179,15 @@ model StoreInfo {
   phone     String
   logo      String?
   vat       Float?
+  pointRate Int       @default(10000)
+  levelConfig Json @default("{\"BRONZE\":0,\"SILVER\":800,\"GOLD\":2000,\"DIAMOND\":5000}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Member {
   id Int  @id @default(autoincrement())
-  name String
+  name String?
   phone String @unique
   email String?
   totalPoints Int @default(0)
@@ -207,6 +210,8 @@ model PointHistory {
   id  Int @id @default(autoincrement())
   memberId  Int
   member  Member  @relation(fields: [memberId],references: [id])
+  staffId Int
+  staff User  @relation(fields: [staffId],references: [id])
   type  PointType
   points Int
   reason  String?

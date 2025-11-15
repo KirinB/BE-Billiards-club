@@ -15,6 +15,12 @@ async function main() {
       phone: '0123456789',
       logo: '',
       vat: 10,
+      levelConfig: {
+        BRONZE: 0,
+        SILVER: 800,
+        GOLD: 2000,
+        DIAMOND: 5000,
+      },
     },
   });
 

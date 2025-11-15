@@ -44,31 +44,36 @@ export class MembersService {
   }
 
   async findAll(query: QueryFindAllMember) {
-    const { name } = query;
-    const page = query.page ?? 1;
-    const pageSize = query.pageSize ?? 10;
+    try {
+      const { name } = query;
+      const page = query.page ?? 1;
+      const pageSize = query.pageSize ?? 10;
 
-    const skip = (page - 1) * pageSize;
+      const skip = (page - 1) * pageSize;
 
-    const where: any = { delete: false };
-    if (name) where.name = { contains: name };
+      const where: any = { deleted: false };
+      if (name) where.name = { contains: name };
 
-    const [total, members] = await this.prisma.$transaction([
-      this.prisma.member.count({ where }),
-      this.prisma.member.findMany({
-        where,
-        skip,
-        take: pageSize,
-        orderBy: { createdAt: 'desc' },
-      }),
-    ]);
-    return {
-      members,
-      total,
-      page,
-      pageSize,
-      totalPage: Math.ceil(total / pageSize),
-    };
+      const [total, members] = await this.prisma.$transaction([
+        this.prisma.member.count({ where }),
+        this.prisma.member.findMany({
+          where,
+          skip,
+          take: pageSize,
+          orderBy: { createdAt: 'desc' },
+        }),
+      ]);
+      return {
+        members,
+        total,
+        page,
+        pageSize,
+        totalPage: Math.ceil(total / pageSize),
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   async findOne(id: number) {
@@ -89,8 +94,17 @@ export class MembersService {
     }
   }
 
-  update(id: number, updateMemberDto: UpdateMemberDto) {
-    return `This action updates a #${id} member`;
+  async update(id: number, updateMemberDto: UpdateMemberDto) {
+    const member = await this.findOne(id);
+    const updatedMember = await this.prisma.member.update({
+      where: {
+        id: member.id,
+      },
+      data: {
+        ...updateMemberDto,
+      },
+    });
+    return updatedMember;
   }
 
   async remove(id: number) {

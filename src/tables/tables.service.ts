@@ -117,7 +117,40 @@ export class TablesService {
 
   async findOne(id: number) {
     try {
-      const table = await this.prisma.table.findUnique({ where: { id } });
+      const table = await this.prisma.table.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
+          currentSession: {
+            select: {
+              id: true,
+              tableId: true,
+              startTime: true,
+              endTime: true,
+              orders: {
+                select: {
+                  orderItems: {
+                    select: {
+                      menuItem: {
+                        select: {
+                          name: true,
+                          price: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              createdAt: true,
+            },
+          },
+          status: true,
+          pricePerHour: true,
+          type: true,
+        },
+      });
 
       if (!table) throw new NotFoundException(TableError.TABLE_NOT_FOUND);
 
